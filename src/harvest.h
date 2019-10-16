@@ -5,14 +5,15 @@
 #include <list>
 #include <map>
 #include <set>
+#include <string>
+#include <utility>
+#include <vector>
 
 #include "string_id.h"
+#include "type_id.h"
 
-typedef std::string itype_id;
+using itype_id = std::string;
 class JsonObject;
-class harvest_list;
-
-using harvest_id = string_id<harvest_list>;
 
 // Could be reused for butchery
 struct harvest_entry {
@@ -27,6 +28,9 @@ struct harvest_entry {
     float mass_ratio = 0.00f;
 
     static harvest_entry load( JsonObject &jo, const std::string &src );
+
+    std::vector<std::string> flags;
+    std::vector<fault_id> faults;
 };
 
 class harvest_list

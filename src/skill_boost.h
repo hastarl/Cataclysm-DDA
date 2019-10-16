@@ -3,14 +3,14 @@
 #define SKILL_BOOST_H
 
 #include <vector>
+#include <string>
 
-#include "json.h"
 #include "optional.h"
 #include "string_id.h"
 
-class skill_boost;
 template<typename T>
 class generic_factory;
+class JsonObject;
 
 class skill_boost
 {
@@ -25,7 +25,7 @@ class skill_boost
         static void reset();
 
         static const std::vector<skill_boost> &get_all();
-        static const cata::optional<skill_boost> get( const std::string &stat_str );
+        static cata::optional<skill_boost> get( const std::string &stat_str );
 
     private:
         friend class generic_factory<skill_boost>;

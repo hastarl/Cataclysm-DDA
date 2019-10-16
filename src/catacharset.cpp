@@ -4,8 +4,8 @@
 #include <cstring>
 #include <array>
 
-#include "cursesdef.h"
 #include "options.h"
+#include "output.h"
 #include "wcwidth.h"
 
 #if defined(_WIN32)
@@ -141,25 +141,16 @@ std::string utf32_to_utf8( uint32_t ch )
 //CJK characters have a width of 2, etc
 int utf8_width( const char *s, const bool ignore_tags )
 {
+    if( ignore_tags ) {
+        return utf8_width( remove_color_tags( s ) );
+    }
     int len = strlen( s );
     const char *ptr = s;
     int w = 0;
-    bool inside_tag = false;
     while( len > 0 ) {
         uint32_t ch = UTF8_getch( &ptr, &len );
         if( ch == UNKNOWN_UNICODE ) {
             continue;
-        }
-        if( ignore_tags ) {
-            if( ch == '<' ) {
-                inside_tag = true;
-            } else if( ch == '>' ) {
-                inside_tag = false;
-                continue;
-            }
-            if( inside_tag ) {
-                continue;
-            }
         }
         w += mk_wcwidth( ch );
     }
@@ -215,7 +206,7 @@ int cursorx_to_position( const char *line, int cursorx, int *prevpos, int maxlen
     return i;
 }
 
-std::string utf8_truncate( std::string s, size_t length )
+std::string utf8_truncate( const std::string &s, size_t length )
 {
 
     if( length == 0 || s.empty() ) {
@@ -253,7 +244,7 @@ static void build_base64_decoding_table()
     }
 }
 
-std::string base64_encode( std::string str )
+std::string base64_encode( const std::string &str )
 {
     //assume it is already encoded
     if( str.length() > 0 && str[0] == '#' ) {
@@ -287,7 +278,7 @@ std::string base64_encode( std::string str )
     return "#" + encoded_data;
 }
 
-std::string base64_decode( std::string str )
+std::string base64_decode( const std::string &str )
 {
     // do not decode if it is not base64
     if( str.length() == 0 || str[0] != '#' ) {
@@ -369,7 +360,7 @@ std::wstring utf8_to_wstr( const std::string &str )
     strip_trailing_nulls( wstr );
     return wstr;
 #else
-    std::size_t sz = std::mbstowcs( NULL, str.c_str(), 0 ) + 1;
+    std::size_t sz = std::mbstowcs( nullptr, str.c_str(), 0 ) + 1;
     std::wstring wstr( sz, '\0' );
     std::mbstowcs( &wstr[0], str.c_str(), sz );
     strip_trailing_nulls( wstr );
@@ -386,7 +377,7 @@ std::string wstr_to_utf8( const std::wstring &wstr )
     strip_trailing_nulls( str );
     return str;
 #else
-    std::size_t sz = std::wcstombs( NULL, wstr.c_str(), 0 ) + 1;
+    std::size_t sz = std::wcstombs( nullptr, wstr.c_str(), 0 ) + 1;
     std::string str( sz, '\0' );
     std::wcstombs( &str[0], wstr.c_str(), sz );
     strip_trailing_nulls( str );
@@ -573,7 +564,7 @@ utf8_wrapper utf8_wrapper::substr_byte( size_t bytestart, size_t length,
     return utf8_wrapper( _data.substr( bytestart, bend - bytestart ) );
 }
 
-long utf8_wrapper::at( size_t start ) const
+uint32_t utf8_wrapper::at( size_t start ) const
 {
     const size_t bstart = byte_start( 0, start );
     const char *utf8str = _data.c_str() + bstart;

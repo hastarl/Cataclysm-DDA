@@ -1,18 +1,22 @@
 #include "overmap_connection.h"
 
+#include <cstddef>
 #include <algorithm>
 #include <cassert>
+#include <map>
+#include <memory>
 
 #include "generic_factory.h"
 #include "json.h"
 #include "overmap_location.h"
+#include "debug.h"
 
 namespace
 {
 
 generic_factory<overmap_connection> connections( "overmap connection" );
 
-}
+} // namespace
 
 static const std::map<std::string, overmap_connection::subtype::flag> connection_subtype_flag_map
 = {

@@ -1,19 +1,26 @@
 /* Entry point and main loop for Cataclysm
  */
 
+#include <clocale>
+#include <cstdio>
+#include <cstdlib>
 #include <cstring>
 #include <ctime>
 #include <iostream>
 #include <locale>
 #include <map>
-#if !defined(_WIN32)
-#   include <signal.h>
+#include <array>
+#include <exception>
+#include <functional>
+#include <memory>
+#include <string>
+#include <utility>
+#include <vector>
+#if defined(_WIN32)
+#include "platform_win.h"
+#else
+#include <signal.h>
 #endif
-#include <stdexcept>
-#if defined(LOCALIZE)
-#   include <libintl.h>
-#endif
-
 #include "color.h"
 #include "crash.h"
 #include "cursesdef.h"
@@ -28,6 +35,8 @@
 #include "path_info.h"
 #include "rng.h"
 #include "translations.h"
+#include "input.h"
+#include "type_id.h"
 
 #if defined(TILES)
 #   if defined(_MSC_VER) && defined(USE_VCPKG)
@@ -92,8 +101,6 @@ int start_logger( const char *app_name )
 
 void exit_handler( int s );
 
-extern bool test_dirty;
-
 namespace
 {
 
@@ -102,7 +109,7 @@ struct arg_handler {
     //! called with the number of parameters after the flag was encountered, along with the array
     //! of following parameters. It must return an integer indicating how many parameters were
     //! consumed by the call or -1 to indicate that a required argument was missing.
-    typedef std::function<int( int, const char ** )> handler_method;
+    using handler_method = std::function<int ( int, const char ** )>;
 
     const char *flag;  //!< The commandline parameter to handle (e.g., "--seed").
     const char *param_documentation;  //!< Human readable description of this arguments parameter.
@@ -116,7 +123,8 @@ void printHelpMessage( const arg_handler *first_pass_arguments, size_t num_first
 }  // namespace
 
 #if defined(USE_WINMAIN)
-int APIENTRY WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow )
+int APIENTRY WinMain( HINSTANCE /* hInstance */, HINSTANCE /* hPrevInstance */,
+                      LPSTR /* lpCmdLine */, int /* nCmdShow */ )
 {
     int argc = __argc;
     char **argv = __argv;
@@ -531,7 +539,7 @@ int main( int argc, char *argv[] )
     }
 
     if( !dir_exist( FILENAMES["datadir"] ) ) {
-        printf( "Fatal: Can't find directory \"%s\"\nPlease ensure the current working directory is correct. Perhaps you meant to start \"cataclysm-launcher\"?\n",
+        printf( "Fatal: Can't find directory \"%s\"\nPlease ensure the current working directory is correct.  Perhaps you meant to start \"cataclysm-launcher\"?\n",
                 FILENAMES["datadir"].c_str() );
         exit( 1 );
     }
@@ -604,10 +612,9 @@ int main( int argc, char *argv[] )
         }
     }
 
-    srand( seed );
     rng_set_engine_seed( seed );
 
-    g.reset( new game );
+    g = std::make_unique<game>();
     // First load and initialize everything that does not
     // depend on the mods.
     try {
@@ -623,7 +630,7 @@ int main( int argc, char *argv[] )
             init_colors();
             loading_ui ui( false );
             const std::vector<mod_id> mods( opts.begin(), opts.end() );
-            exit( g->check_mod_data( mods, ui ) && !test_dirty ? 0 : 1 );
+            exit( g->check_mod_data( mods, ui ) && !debug_has_error_been_observed() ? 0 : 1 );
         }
     } catch( const std::exception &err ) {
         debugmsg( "%s", err.what() );
@@ -641,7 +648,7 @@ int main( int argc, char *argv[] )
     sigIntHandler.sa_handler = exit_handler;
     sigemptyset( &sigIntHandler.sa_mask );
     sigIntHandler.sa_flags = 0;
-    sigaction( SIGINT, &sigIntHandler, NULL );
+    sigaction( SIGINT, &sigIntHandler, nullptr );
 #endif
 
 #if defined(LOCALIZE)
@@ -649,8 +656,8 @@ int main( int argc, char *argv[] )
 #if defined(_WIN32)
     lang = getLangFromLCID( GetUserDefaultLCID() );
 #else
-    const char *v = setlocale( LC_ALL, NULL );
-    if( v != NULL ) {
+    const char *v = setlocale( LC_ALL, nullptr );
+    if( v != nullptr ) {
         lang = v;
 
         if( lang == "C" ) {
@@ -728,7 +735,7 @@ void printHelpMessage( const arg_handler *first_pass_arguments,
         }
         printf( "\n" );
         if( handler->documentation ) {
-            printf( "\t%s\n", handler->documentation );
+            printf( "    %s\n", handler->documentation );
         }
     }
 }
@@ -738,7 +745,7 @@ void exit_handler( int s )
 {
     const int old_timeout = inp_mngr.get_timeout();
     inp_mngr.reset_timeout();
-    if( s != 2 || query_yn( _( "Really Quit? All unsaved changes will be lost." ) ) ) {
+    if( s != 2 || query_yn( _( "Really Quit?  All unsaved changes will be lost." ) ) ) {
         catacurses::erase(); // Clear screen
 
         deinitDebug();

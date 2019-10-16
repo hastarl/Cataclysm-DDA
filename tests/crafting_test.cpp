@@ -1,16 +1,33 @@
+#include <limits.h>
 #include <sstream>
+#include <algorithm>
+#include <list>
+#include <memory>
+#include <set>
+#include <string>
+#include <vector>
 
+#include "avatar.h"
 #include "catch/catch.hpp"
-#include "crafting.h"
 #include "game.h"
 #include "itype.h"
 #include "map.h"
 #include "map_helpers.h"
 #include "npc.h"
-#include "output.h"
-#include "player.h"
 #include "player_helpers.h"
 #include "recipe_dictionary.h"
+#include "calendar.h"
+#include "cata_utility.h"
+#include "inventory.h"
+#include "item.h"
+#include "optional.h"
+#include "player_activity.h"
+#include "recipe.h"
+#include "requirements.h"
+#include "string_id.h"
+#include "material.h"
+#include "type_id.h"
+#include "point.h"
 
 TEST_CASE( "recipe_subset" )
 {
@@ -99,7 +116,7 @@ TEST_CASE( "recipe_subset" )
 TEST_CASE( "available_recipes", "[recipes]" )
 {
     const recipe *r = &recipe_id( "brew_mead" ).obj();
-    player dummy;
+    avatar dummy;
 
     REQUIRE( dummy.get_skill_level( r->skill_used ) == 0 );
     REQUIRE_FALSE( dummy.knows_recipe( r ) );
@@ -194,7 +211,7 @@ TEST_CASE( "available_recipes", "[recipes]" )
 TEST_CASE( "crafting_with_a_companion", "[.]" )
 {
     const recipe *r = &recipe_id( "brew_mead" ).obj();
-    player dummy;
+    avatar dummy;
 
     REQUIRE( dummy.get_skill_level( r->skill_used ) == 0 );
     REQUIRE_FALSE( dummy.knows_recipe( r ) );
@@ -208,6 +225,7 @@ TEST_CASE( "crafting_with_a_companion", "[.]" )
 
         g->load_npcs();
 
+        CHECK( !dummy.in_vehicle );
         dummy.setpos( who.pos() );
         const auto helpers( dummy.get_crafting_helpers() );
 
@@ -239,7 +257,7 @@ TEST_CASE( "crafting_with_a_companion", "[.]" )
     }
 }
 
-static void prep_craft( const recipe_id &rid, const std::vector<item> tools,
+static void prep_craft( const recipe_id &rid, const std::vector<item> &tools,
                         bool expect_craftable )
 {
     clear_player();
@@ -262,18 +280,51 @@ static void prep_craft( const recipe_id &rid, const std::vector<item> tools,
     CHECK( can_craft == expect_craftable );
 }
 
-// This fakes a craft in a reasonable way which is fast
-static void fake_test_craft( const recipe_id &rid, const std::vector<item> tools,
-                             bool expect_craftable )
+static time_point midnight = calendar::turn_zero + 0_hours;
+static time_point midday = calendar::turn_zero + 12_hours;
+
+static void set_time( const time_point &time )
 {
-    prep_craft( rid, tools, expect_craftable );
-    if( expect_craftable ) {
-        g->u.make_craft_with_command( rid, 1, false );
-        g->u.invalidate_crafting_inventory();
-    }
+    calendar::turn = time;
+    g->reset_light_level();
+    int z = g->u.posz();
+    g->m.update_visibility_cache( z );
+    g->m.invalidate_map_cache( z );
+    g->m.build_map_cache( z );
 }
 
-TEST_CASE( "charge_handling" )
+// This tries to actually run the whole craft activity, which is more thorough,
+// but slow
+static int actually_test_craft( const recipe_id &rid, const std::vector<item> &tools,
+                                int interrupt_after_turns )
+{
+    prep_craft( rid, tools, true );
+    set_time( midday ); // Ensure light for crafting
+    const recipe &rec = rid.obj();
+    REQUIRE( g->u.morale_crafting_speed_multiplier( rec ) == 1.0 );
+    REQUIRE( g->u.lighting_craft_speed_multiplier( rec ) == 1.0 );
+    REQUIRE( !g->u.activity );
+
+    // This really shouldn't be needed, but for some reason the tests fail for mingw builds without it
+    g->u.learn_recipe( &rec );
+    REQUIRE( g->u.has_recipe( &rec, g->u.crafting_inventory(), g->u.get_crafting_helpers() ) != -1 );
+
+    g->u.make_craft( rid, 1 );
+    CHECK( g->u.activity );
+    CHECK( g->u.activity.id() == activity_id( "ACT_CRAFT" ) );
+    int turns = 0;
+    while( g->u.activity.id() == activity_id( "ACT_CRAFT" ) ) {
+        if( turns >= interrupt_after_turns ) {
+            set_time( midnight ); // Kill light to interrupt crafting
+        }
+        ++turns;
+        g->u.moves = 100;
+        g->u.activity.do_turn( g->u );
+    }
+    return turns;
+}
+
+TEST_CASE( "charge_handling", "[crafting]" )
 {
     SECTION( "carver" ) {
         std::vector<item> tools;
@@ -289,7 +340,7 @@ TEST_CASE( "charge_handling" )
         tools.emplace_back( "power_supply" );
         tools.emplace_back( "scrap" );
 
-        fake_test_craft( recipe_id( "carver_off" ), tools, true );
+        actually_test_craft( recipe_id( "carver_off" ), tools, INT_MAX );
         CHECK( get_remaining_charges( "hotplate" ) == 10 );
         CHECK( get_remaining_charges( "soldering_iron" ) == 10 );
     }
@@ -309,7 +360,7 @@ TEST_CASE( "charge_handling" )
         tools.emplace_back( "power_supply" );
         tools.emplace_back( "scrap" );
 
-        fake_test_craft( recipe_id( "carver_off" ), tools, true );
+        actually_test_craft( recipe_id( "carver_off" ), tools, INT_MAX );
         CHECK( get_remaining_charges( "hotplate" ) == 0 );
         CHECK( get_remaining_charges( "soldering_iron" ) == 0 );
     }
@@ -332,7 +383,7 @@ TEST_CASE( "charge_handling" )
         tools.emplace_back( "scrap" );
         tools.emplace_back( "UPS_off", -1, 500 );
 
-        fake_test_craft( recipe_id( "carver_off" ), tools, true );
+        actually_test_craft( recipe_id( "carver_off" ), tools, INT_MAX );
         CHECK( get_remaining_charges( "hotplate" ) == 0 );
         CHECK( get_remaining_charges( "soldering_iron" ) == 0 );
         CHECK( get_remaining_charges( "UPS_off" ) == 480 );
@@ -356,11 +407,11 @@ TEST_CASE( "charge_handling" )
         tools.emplace_back( "scrap" );
         tools.emplace_back( "UPS_off", -1, 10 );
 
-        fake_test_craft( recipe_id( "carver_off" ), tools, false );
+        prep_craft( recipe_id( "carver_off" ), tools, false );
     }
 }
 
-TEST_CASE( "tool_use" )
+TEST_CASE( "tool_use", "[crafting]" )
 {
     SECTION( "clean_water" ) {
         std::vector<item> tools;
@@ -370,7 +421,8 @@ TEST_CASE( "tool_use" )
         tools.push_back( plastic_bottle );
         tools.emplace_back( "pot" );
 
-        fake_test_craft( recipe_id( "water_clean" ), tools, true );
+        // Can't actually test crafting here since crafting a liquid currently causes a ui prompt
+        prep_craft( recipe_id( "water_clean" ), tools, true );
     }
     SECTION( "clean_water_in_occupied_cooking_vessel" ) {
         std::vector<item> tools;
@@ -384,46 +436,8 @@ TEST_CASE( "tool_use" )
         jar.contents.emplace_back( "water", -1, 2 );
         tools.push_back( jar );
 
-        fake_test_craft( recipe_id( "water_clean" ), tools, false );
+        prep_craft( recipe_id( "water_clean" ), tools, false );
     }
-}
-
-static constexpr int midnight = HOURS( 0 );
-static constexpr int midday = HOURS( 12 );
-
-static void set_time( int time )
-{
-    calendar::turn = time;
-    g->reset_light_level();
-    int z = g->u.posz();
-    g->m.update_visibility_cache( z );
-    g->m.build_map_cache( z );
-}
-
-// This tries to actually run the whole craft activity, which is more thorough,
-// but slow
-static int actually_test_craft( const recipe_id &rid, const std::vector<item> tools,
-                                int interrupt_after_turns )
-{
-    prep_craft( rid, tools, true );
-    set_time( midday ); // Ensure light for crafting
-    const recipe &rec = rid.obj();
-    REQUIRE( g->u.morale_crafting_speed_multiplier( rec ) == 1.0 );
-    REQUIRE( g->u.lighting_craft_speed_multiplier( rec ) == 1.0 );
-    REQUIRE( !g->u.activity );
-    g->u.make_craft( rid, 1 );
-    CHECK( g->u.activity );
-    CHECK( g->u.activity.id() == activity_id( "ACT_CRAFT" ) );
-    int turns = 0;
-    while( g->u.activity.id() == activity_id( "ACT_CRAFT" ) ) {
-        if( turns >= interrupt_after_turns ) {
-            set_time( midnight ); // Kill light to interrupt crafting
-        }
-        ++turns;
-        g->u.moves = 100;
-        g->u.activity.do_turn( g->u );
-    }
-    return turns;
 }
 
 // Resume the first in progress craft found in the player's inventory
@@ -457,18 +471,21 @@ static void verify_inventory( const std::vector<std::string> &has,
     for( const item *i : g->u.inv_dump() ) {
         os << "  " << i->typeId() << " (" << i->charges << ")\n";
     }
+    os << "Wielded:\n" << g->u.weapon.tname() << "\n";
     INFO( os.str() );
     for( const std::string &i : has ) {
         INFO( "expecting " << i );
-        CHECK( player_has_item_of_type( i ) );
+        const bool has = player_has_item_of_type( i ) || g->u.weapon.type->get_id() == i;
+        CHECK( has );
     }
     for( const std::string &i : hasnt ) {
         INFO( "not expecting " << i );
-        CHECK( !player_has_item_of_type( i ) );
+        const bool has = !player_has_item_of_type( i ) && !( g->u.weapon.type->get_id() == i );
+        CHECK( has );
     }
 }
 
-TEST_CASE( "crafting_interruption" )
+TEST_CASE( "crafting_interruption", "[crafting]" )
 {
     std::vector<item> tools;
     tools.emplace_back( "hammer" );

@@ -283,7 +283,7 @@
     "death_drops": { "subtype": "collection", "groups": [ [ "cow", 25 ] ], "//": "25% chance of an item from group cow" },
     "death_function": [ "NORMAL" ],
     "harvest": "mammal_large_leather",
-    "upgrades": { "age_grow": 28, "into": "mon_cow" },
+    "upgrades": { "age_grow": 180, "into": "mon_cow" },
     "biosignature": { "biosig_item": "feces_cow", "biosig_timer": 7 },
     "special_attacks": [ [ "EAT_CROP", 60 ] ],
     "flags": [ "SEES", "HEARS", "SMELLS", "ANIMAL", "PATH_AVOID_DANGER_1", "WARM", "PET_WONT_FOLLOW" ]
@@ -320,11 +320,22 @@
     "death_drops": { "subtype": "collection", "groups": [ [ "cow", 25 ] ], "//": "25% chance of an item from group cow" },
     "death_function": [ "NORMAL" ],
     "harvest": "mammal_large_leather",
-    "reproduction": { "baby_monster": "mon_cow_calf", "baby_count": 1, "baby_timer": 20 },
+    "reproduction": { "baby_monster": "mon_cow_calf", "baby_count": 1, "baby_timer": 343 },
     "baby_flags": [ "SPRING", "SUMMER", "AUTUMN" ],
     "biosignature": { "biosig_item": "feces_cow", "biosig_timer": 1 },
     "special_attacks": [ [ "EAT_CROP", 40 ] ],
-    "flags": [ "SEES", "HEARS", "SMELLS", "ANIMAL", "PATH_AVOID_DANGER_1", "WARM", "CATTLEFODDER", "PET_WONT_FOLLOW", "MILKABLE" ]
+    "flags": [
+      "SEES",
+      "HEARS",
+      "SMELLS",
+      "PET_MOUNTABLE",
+      "ANIMAL",
+      "PATH_AVOID_DANGER_1",
+      "WARM",
+      "CATTLEFODDER",
+      "PET_WONT_FOLLOW",
+      "MILKABLE"
+    ]
   },
   {
     "id": "mon_coyote",
@@ -489,12 +500,13 @@
     "anger_triggers": [ "HURT", "FRIEND_ATTACKED", "FRIEND_DIED" ],
     "placate_triggers": [ "MEAT" ],
     "death_function": [ "NORMAL" ],
-    "special_attacks": [ [ "EAT_FOOD", 100 ] ],
+    "special_attacks": [ [ "EAT_FOOD", 100 ], [ "PARROT_AT_DANGER", 0 ] ],
     "flags": [
       "ANIMAL",
       "DOGFOOD",
       "GROUP_MORALE",
       "HEARS",
+      "PET_MOUNTABLE",
       "HIT_AND_RUN",
       "KEENNOSE",
       "PATH_AVOID_DANGER_1",
@@ -508,7 +520,7 @@
     "id": "mon_dog_pup",
     "type": "MONSTER",
     "copy-from": "mon_dog",
-    "name": "Labrador puppy",
+    "name": { "str": "Labrador puppy", "str_pl": "Labrador puppies" },
     "description": "An adorable, defenseless Labrador puppy.  Much safer to tame than an adult dog.",
     "volume": "750 ml",
     "weight": 1000,
@@ -543,12 +555,23 @@
     "harvest": "mammal_small_leather",
     "reproduction": { "baby_monster": "mon_dog_bull_pup", "baby_count": 7, "baby_timer": 300 },
     "//": "7 puppies and 300-320 days per-litter for size medium canines",
-    "flags": [ "ANIMAL", "DOGFOOD", "HEARS", "HIT_AND_RUN", "KEENNOSE", "PATH_AVOID_DANGER_1", "SEES", "SMELLS", "WARM" ]
+    "flags": [
+      "ANIMAL",
+      "DOGFOOD",
+      "PET_MOUNTABLE",
+      "HEARS",
+      "HIT_AND_RUN",
+      "KEENNOSE",
+      "PATH_AVOID_DANGER_1",
+      "SEES",
+      "SMELLS",
+      "WARM"
+    ]
   },
   {
     "id": "mon_dog_bull_pup",
     "type": "MONSTER",
-    "name": "bulldog puppy",
+    "name": { "str": "bulldog puppy", "str_pl": "bulldog puppies" },
     "description": "An adorable, defenseless American bulldog puppy.  Much safer to tame than an adult dog.",
     "default_faction": "dog",
     "bodytype": "dog",
@@ -579,7 +602,7 @@
     "id": "mon_dog_pitbullmix",
     "copy-from": "mon_dog",
     "type": "MONSTER",
-    "name": "pit bull mix",
+    "name": { "str": "pit bull mix", "str_pl": "pit bull mixes" },
     "description": "The oft-misunderstood pit bull is not actually a single breed but a label for several kinds of terriers.  It has average abilities, and is well-known for its 'lock jaw' - which isn't real, but their incredible determination is.",
     "hp": 27,
     "weight": 25000,
@@ -593,12 +616,23 @@
     "harvest": "mammal_small_leather",
     "reproduction": { "baby_monster": "mon_dog_pitbullmix_pup", "baby_count": 4, "baby_timer": 270 },
     "//": "1-4 puppies & 270 days per-litter for size small canines",
-    "flags": [ "ANIMAL", "DOGFOOD", "HEARS", "HIT_AND_RUN", "KEENNOSE", "PATH_AVOID_DANGER_1", "SEES", "SMELLS", "WARM" ]
+    "flags": [
+      "ANIMAL",
+      "DOGFOOD",
+      "PET_MOUNTABLE",
+      "HEARS",
+      "HIT_AND_RUN",
+      "KEENNOSE",
+      "PATH_AVOID_DANGER_1",
+      "SEES",
+      "SMELLS",
+      "WARM"
+    ]
   },
   {
     "id": "mon_dog_pitbullmix_pup",
     "type": "MONSTER",
-    "name": "pit bull puppy",
+    "name": { "str": "pit bull puppy", "str_pl": "pit bull puppies" },
     "description": "An adorable, defenseless pit bull puppy.  Much safer to tame than an adult dog.",
     "default_faction": "dog",
     "bodytype": "dog",
@@ -650,6 +684,7 @@
       "DOGFOOD",
       "GROUP_MORALE",
       "HARDTOSHOOT",
+      "PET_MOUNTABLE",
       "HEARS",
       "HIT_AND_RUN",
       "KEENNOSE",
@@ -663,7 +698,7 @@
   {
     "id": "mon_dog_beagle_pup",
     "type": "MONSTER",
-    "name": "beagle puppy",
+    "name": { "str": "beagle puppy", "str_pl": "beagle puppies" },
     "description": "An adorable, defenseless beagle puppy.  Much safer to tame than an adult dog.",
     "default_faction": "dog",
     "bodytype": "dog",
@@ -709,12 +744,24 @@
     "special_attacks": [ [ "LUNGE", 5 ], { "type": "leap", "cooldown": 8, "max_range": 2 } ],
     "reproduction": { "baby_monster": "mon_dog_bcollie_pup", "baby_count": 4, "baby_timer": 270 },
     "//": "1-4 puppies & 270 days per-litter for size small canines",
-    "flags": [ "ANIMAL", "CLIMBS", "DOGFOOD", "HEARS", "HIT_AND_RUN", "KEENNOSE", "PATH_AVOID_DANGER_1", "SEES", "SMELLS", "WARM" ]
+    "flags": [
+      "ANIMAL",
+      "CLIMBS",
+      "DOGFOOD",
+      "PET_MOUNTABLE",
+      "HEARS",
+      "HIT_AND_RUN",
+      "KEENNOSE",
+      "PATH_AVOID_DANGER_1",
+      "SEES",
+      "SMELLS",
+      "WARM"
+    ]
   },
   {
     "id": "mon_dog_bcollie_pup",
     "type": "MONSTER",
-    "name": "border collie puppy",
+    "name": { "str": "border collie puppy", "str_pl": "border collie puppies" },
     "description": "An adorable, defenseless Border Collie puppy.  Much safer to tame than an adult dog.",
     "default_faction": "dog",
     "bodytype": "dog",
@@ -766,7 +813,7 @@
   {
     "id": "mon_dog_boxer_pup",
     "type": "MONSTER",
-    "name": "boxer puppy",
+    "name": { "str": "boxer puppy", "str_pl": "boxer puppies" },
     "description": "An adorable, defenseless boxer puppy.  Much safer to tame than an adult dog.",
     "default_faction": "dog",
     "bodytype": "dog",
@@ -795,7 +842,19 @@
     "fear_triggers": [ "FRIEND_ATTACKED", "FRIEND_DIED", "HURT" ],
     "death_function": [ "NORMAL" ],
     "special_attacks": [ [ "EAT_FOOD", 100 ] ],
-    "flags": [ "ANIMAL", "DOGFOOD", "GROUP_MORALE", "HEARS", "KEENNOSE", "PATH_AVOID_DANGER_1", "SEES", "SMELLS", "SWARMS", "WARM" ]
+    "flags": [
+      "ANIMAL",
+      "DOGFOOD",
+      "PET_MOUNTABLE",
+      "GROUP_MORALE",
+      "HEARS",
+      "KEENNOSE",
+      "PATH_AVOID_DANGER_1",
+      "SEES",
+      "SMELLS",
+      "SWARMS",
+      "WARM"
+    ]
   },
   {
     "id": "mon_dog_chihuahua",
@@ -833,7 +892,7 @@
   {
     "id": "mon_dog_chihuahua_pup",
     "type": "MONSTER",
-    "name": "Chihuahua puppy",
+    "name": { "str": "Chihuahua puppy", "str_pl": "Chihuahua puppies" },
     "description": "An adorable, defenseless Chihuahua puppy.  Much safer to tame than an adult dog.",
     "default_faction": "dog",
     "bodytype": "dog",
@@ -886,6 +945,7 @@
       "DOGFOOD",
       "HARDTOSHOOT",
       "HEARS",
+      "PET_MOUNTABLE",
       "HIT_AND_RUN",
       "KEENNOSE",
       "PATH_AVOID_DANGER_1",
@@ -898,7 +958,7 @@
   {
     "id": "mon_dog_dachshund_pup",
     "type": "MONSTER",
-    "name": "dachshund puppy",
+    "name": { "str": "dachshund puppy", "str_pl": "dachshund puppies" },
     "bodytype": "dog",
     "description": "An adorable, defenseless dachshund puppy.  Much safer to tame than an adult dog.",
     "default_faction": "dog",
@@ -944,12 +1004,12 @@
     "special_attacks": [ [ "LUNGE", 5 ] ],
     "reproduction": { "baby_monster": "mon_dog_gshepherd_pup", "baby_count": 7, "baby_timer": 300 },
     "//": "1-7 puppies & 300-320 days per-litter for size medium canines",
-    "flags": [ "ANIMAL", "DOGFOOD", "HEARS", "KEENNOSE", "PATH_AVOID_DANGER_1", "SEES", "SMELLS", "WARM" ]
+    "flags": [ "ANIMAL", "DOGFOOD", "PET_MOUNTABLE", "HEARS", "KEENNOSE", "PATH_AVOID_DANGER_1", "SEES", "SMELLS", "WARM" ]
   },
   {
     "id": "mon_dog_gshepherd_pup",
     "type": "MONSTER",
-    "name": "German shepherd puppy",
+    "name": { "str": "German shepherd puppy", "str_pl": "German shepherd puppies" },
     "description": "An adorable, defenseless German shepherd puppy.  Much safer to tame than an adult dog.",
     "default_faction": "dog",
     "bodytype": "dog",
@@ -983,7 +1043,7 @@
     "id": "mon_dog_gpyrenees",
     "copy-from": "mon_dog",
     "type": "MONSTER",
-    "name": "Great Pyrenees",
+    "name": { "str": "Great Pyrenees", "str_pl": "Great Pyrenees" },
     "//": "Rare, location specific only",
     "description": "A large and powerful breed, the Great Pyrenees has a beautiful, thick white coat.  Originally bred to deter wolves and other predators, now faced with protecting livestock from shambling hordes of undead.",
     "volume": "52500 ml",
@@ -1000,12 +1060,23 @@
     "harvest": "mammal_fur",
     "reproduction": { "baby_monster": "mon_dog_gpyrenees_pup", "baby_count": 7, "baby_timer": 320 },
     "//": "1-7 puppies & 300-320 days per-litter for size medium canines",
-    "flags": [ "ANIMAL", "DOGFOOD", "HEARS", "HIT_AND_RUN", "KEENNOSE", "PATH_AVOID_DANGER_1", "SEES", "SMELLS", "WARM" ]
+    "flags": [
+      "ANIMAL",
+      "DOGFOOD",
+      "PET_MOUNTABLE",
+      "HEARS",
+      "HIT_AND_RUN",
+      "KEENNOSE",
+      "PATH_AVOID_DANGER_1",
+      "SEES",
+      "SMELLS",
+      "WARM"
+    ]
   },
   {
     "id": "mon_dog_gpyrenees_pup",
     "type": "MONSTER",
-    "name": "Great Pyrenees puppy",
+    "name": { "str": "Great Pyrenees puppy", "str_pl": "Great Pyrenees puppies" },
     "description": "An adorable, defenseless Great Pyrenees puppy.  Much safer to tame than an adult dog.",
     "default_faction": "dog",
     "bodytype": "dog",
@@ -1042,7 +1113,6 @@
     "name": "rottweiler",
     "//": "Rare, location specific only",
     "description": "A terrifying breed to face feral, Rottweilers are descended from Roman legion mastiffs.  It's robust, vicious, and quite capable of mauling a human to death.",
-    "size": "MEDIUM",
     "volume": "50000 ml",
     "weight": 50000,
     "hp": 42,
@@ -1057,12 +1127,23 @@
     "special_attacks": [ [ "LUNGE", 5 ] ],
     "reproduction": { "baby_monster": "mon_dog_rottweiler_pup", "baby_count": 7, "baby_timer": 300 },
     "//": "1-7 puppies & 300-320 days per-litter for size medium canines",
-    "flags": [ "ANIMAL", "DOGFOOD", "HEARS", "HIT_AND_RUN", "KEENNOSE", "PATH_AVOID_DANGER_1", "SEES", "SMELLS", "WARM" ]
+    "flags": [
+      "ANIMAL",
+      "DOGFOOD",
+      "PET_MOUNTABLE",
+      "HEARS",
+      "HIT_AND_RUN",
+      "KEENNOSE",
+      "PATH_AVOID_DANGER_1",
+      "SEES",
+      "SMELLS",
+      "WARM"
+    ]
   },
   {
     "id": "mon_dog_rottweiler_pup",
     "type": "MONSTER",
-    "name": "rottweiler puppy",
+    "name": { "str": "rottweiler puppy", "str_pl": "rottweiler puppies" },
     "description": "An adorable, defenseless Rottweiler puppy.  Much safer to tame than an adult dog.",
     "default_faction": "dog",
     "bodytype": "dog",
@@ -1110,12 +1191,24 @@
     "special_attacks": [ [ "LUNGE", 5 ], { "type": "leap", "cooldown": 8, "max_range": 2 } ],
     "reproduction": { "baby_monster": "mon_dog_auscattle_pup", "baby_count": 4, "baby_timer": 270 },
     "//": "1-4 puppies & 270 days per-litter for size small canines",
-    "flags": [ "ANIMAL", "CLIMBS", "DOGFOOD", "HEARS", "HIT_AND_RUN", "KEENNOSE", "PATH_AVOID_DANGER_1", "SEES", "SMELLS", "WARM" ]
+    "flags": [
+      "ANIMAL",
+      "CLIMBS",
+      "DOGFOOD",
+      "PET_MOUNTABLE",
+      "HEARS",
+      "HIT_AND_RUN",
+      "KEENNOSE",
+      "PATH_AVOID_DANGER_1",
+      "SEES",
+      "SMELLS",
+      "WARM"
+    ]
   },
   {
     "id": "mon_dog_auscattle_pup",
     "type": "MONSTER",
-    "name": "cattle dog puppy",
+    "name": { "str": "cattle dog puppy", "str_pl": "cattle dog puppies" },
     "description": "An adorable, defenseless Australian cattle dog puppy.  Much safer to tame than an adult dog.",
     "default_faction": "dog",
     "bodytype": "dog",
@@ -1148,8 +1241,7 @@
   {
     "id": "mon_fox_gray",
     "type": "MONSTER",
-    "name": "fox",
-    "name_plural": "foxes",
+    "name": { "str": "fox", "str_pl": "foxes" },
     "description": "A small omnivorous canine with an almost cat-like manner.  It is a solitary hunter, and one of the only canids able to climb trees.",
     "default_faction": "fox",
     "bodytype": "dog",
@@ -1180,8 +1272,7 @@
   {
     "id": "mon_fox_red",
     "type": "MONSTER",
-    "name": "fox",
-    "name_plural": "foxes",
+    "name": { "str": "fox", "str_pl": "foxes" },
     "description": "The red fox, an omnivorous canine and largest of the true foxes, it is a wily hunter with a combative, suspicious temperament.",
     "default_faction": "fox",
     "bodytype": "dog",
@@ -1273,7 +1364,7 @@
     "volume": "550000 ml",
     "weight": 550000,
     "hp": 90,
-    "speed": 210,
+    "speed": 300,
     "material": [ "flesh" ],
     "symbol": "H",
     "color": "brown",
@@ -1291,7 +1382,17 @@
     "harvest": "mammal_large_leather",
     "biosignature": { "biosig_item": "feces_manure", "biosig_timer": 2 },
     "special_attacks": [ [ "EAT_CROP", 60 ] ],
-    "flags": [ "SEES", "HEARS", "SMELLS", "ANIMAL", "CATTLEFODDER", "PET_WONT_FOLLOW", "PATH_AVOID_DANGER_1", "WARM" ]
+    "flags": [
+      "SEES",
+      "HEARS",
+      "SMELLS",
+      "ANIMAL",
+      "CATTLEFODDER",
+      "PET_WONT_FOLLOW",
+      "PET_MOUNTABLE",
+      "PATH_AVOID_DANGER_1",
+      "WARM"
+    ]
   },
   {
     "id": "mon_lemming",
@@ -1352,7 +1453,7 @@
   {
     "id": "mon_moose",
     "type": "MONSTER",
-    "name": "moose",
+    "name": { "str": "moose", "str_pl": "moose" },
     "description": "The Eastern moose, the largest living species of deer.  While they aren't aggressive unless angered, the mating season can make the bulls quite ill-tempered.",
     "default_faction": "herbivore",
     "bodytype": "horse",
@@ -1383,7 +1484,7 @@
     "harvest": "mammal_large_leather",
     "biosignature": { "biosig_item": "feces_manure", "biosig_timer": 8 },
     "special_attacks": [ [ "EAT_CROP", 60 ] ],
-    "flags": [ "SEES", "HEARS", "SMELLS", "ANIMAL", "PATH_AVOID_DANGER_1", "WARM", "BLEED", "ATTACKMON" ]
+    "flags": [ "SEES", "HEARS", "SMELLS", "PET_MOUNTABLE", "ANIMAL", "PATH_AVOID_DANGER_1", "WARM", "BLEED", "ATTACKMON" ]
   },
   {
     "id": "mon_muskrat",
@@ -1584,7 +1685,7 @@
     "placate_triggers": [ "MEAT" ],
     "death_function": [ "NORMAL" ],
     "special_attacks": [ [ "EAT_FOOD", 20 ] ],
-    "flags": [ "SEES", "HEARS", "SMELLS", "ANIMAL", "PATH_AVOID_DANGER_1", "WARM", "KEENNOSE", "BLEED" ]
+    "flags": [ "SEES", "HEARS", "SMELLS", "PET_MOUNTABLE", "ANIMAL", "PATH_AVOID_DANGER_1", "WARM", "KEENNOSE", "BLEED" ]
   },
   {
     "id": "mon_rabbit",
@@ -1701,7 +1802,7 @@
     "type": "MONSTER",
     "name": "lamb",
     "name_plural": "lambs",
-    "description": "A timid, hooved grazing mammal, and one of the first animals ever domesticated. Its body is covered in a thick layer of wool, and the males have long, spiraling horns.",
+    "description": "A timid, hooved grazing mammal, and one of the first animals ever domesticated.  Its body is covered in a thick layer of wool, and the males have long, spiraling horns.",
     "default_faction": "herbivore",
     "bodytype": "dog",
     "categories": [ "WILDLIFE" ],
@@ -1731,9 +1832,8 @@
   {
     "id": "mon_sheep",
     "type": "MONSTER",
-    "name": "sheep",
-    "name_plural": "sheep",
-    "description": "A timid, hooved grazing mammal, and one of the first animals ever domesticated. Its body is covered in a thick layer of wool, and the males have long, spiralling horns.",
+    "name": { "str": "sheep", "str_pl": "sheep" },
+    "description": "A timid, hooved grazing mammal, and one of the first animals ever domesticated.  Its body is covered in a thick layer of wool, and the males have long, spiralling horns.",
     "default_faction": "herbivore",
     "bodytype": "dog",
     "categories": [ "WILDLIFE" ],
@@ -1846,8 +1946,7 @@
   {
     "id": "mon_wolf",
     "type": "MONSTER",
-    "name": "wolf",
-    "name_plural": "wolves",
+    "name": { "str": "wolf", "str_pl": "wolves" },
     "description": "A cunning pack predator, once extinct in the New England area, the wolf was successfully reintroduced and their numbers reached record highs in the decade before the Cataclysm.  Lucky you.",
     "default_faction": "wolf",
     "bodytype": "dog",

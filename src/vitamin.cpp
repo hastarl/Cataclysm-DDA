@@ -1,12 +1,12 @@
 #include "vitamin.h"
 
 #include <map>
+#include <memory>
 
-#include "assign.h"
 #include "calendar.h"
 #include "debug.h"
 #include "json.h"
-#include "translations.h"
+#include "units.h"
 
 static std::map<vitamin_id, vitamin> vitamins_all;
 
@@ -50,20 +50,20 @@ void vitamin::load_vitamin( JsonObject &jo )
     vitamin vit;
 
     vit.id_ = vitamin_id( jo.get_string( "id" ) );
-    vit.name_ = _( jo.get_string( "name" ).c_str() );
+    jo.read( "name", vit.name_ );
     vit.deficiency_ = efftype_id( jo.get_string( "deficiency" ) );
     vit.excess_ = efftype_id( jo.get_string( "excess", "null" ) );
     vit.min_ = jo.get_int( "min" );
     vit.max_ = jo.get_int( "max", 0 );
-    assign( jo, "rate", vit.rate_, false, 1_turns );
+    vit.rate_ = read_from_json_string<time_duration>( *jo.get_raw( "rate" ), time_duration::units );
 
     if( vit.rate_ < 0_turns ) {
         jo.throw_error( "vitamin consumption rate cannot be negative", "rate" );
     }
 
-    auto def = jo.get_array( "disease" );
+    JsonArray def = jo.get_array( "disease" );
     while( def.has_more() ) {
-        auto e = def.next_array();
+        JsonArray e = def.next_array();
         vit.disease_.emplace_back( e.get_int( 0 ), e.get_int( 1 ) );
     }
 

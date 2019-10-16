@@ -1,14 +1,17 @@
 #pragma once
 
-#include "itype.h"
-#include "game.h"
-#include "player.h"
-#include "string_id.h"
+#include <map>
+#include <utility>
+
 #include "units.h"
+#include "calendar.h"
+#include "type_id.h"
 
 struct needs_rates;
-class vitamin;
-using vitamin_id = string_id<vitamin>;
+class player;
+class JsonIn;
+class JsonOut;
+class item;
 
 // how much the stomach_contents passes
 // based on 30 minute increments
@@ -43,10 +46,10 @@ class stomach_contents
         void bowel_movement();
         // empties contents equal to amount as ratio
         // amount ranges from 0 to 1
-        void bowel_movement( stomach_pass_rates rates );
+        void bowel_movement( const stomach_pass_rates &rates );
         // moves @rates contents to other stomach_contents
         // amount ranges from 0 to 1
-        void bowel_movement( stomach_pass_rates rates, stomach_contents &move_to );
+        void bowel_movement( const stomach_pass_rates &rates, stomach_contents &move_to );
 
         // turns an item into stomach contents
         // will still add contents if past maximum volume.
@@ -66,7 +69,7 @@ class stomach_contents
         stomach_pass_rates get_pass_rates( bool stomach );
         // gets the absorption rates for kcal and vitamins
         // stomach == true, guts == false
-        stomach_absorb_rates get_absorb_rates( bool stomach, needs_rates metabolic_rates );
+        stomach_absorb_rates get_absorb_rates( bool stomach, const needs_rates &metabolic_rates );
 
         int get_calories() const;
         int get_calories_absorbed() const;
@@ -99,6 +102,8 @@ class stomach_contents
         // how long has it been since i ate?
         // only really relevant for player::stomach
         time_duration time_since_ate() const;
+        // update last_ate to calendar::turn
+        void ate();
 
         void serialize( JsonOut &json ) const;
         void deserialize( JsonIn &json );
@@ -133,14 +138,14 @@ class stomach_contents
         // absorbs a single vitamin.
         // does not add it to player vitamins yet
         // returns true if vitamins are absorbed
-        bool absorb_vitamin( vitamin_id vit, int amount );
+        bool absorb_vitamin( const vitamin_id &vit, int amount );
         // absorbs a single vitamin
         // does not add it to player vitamins yet
         // returns true if vitamins are absorbed
-        bool absorb_vitamin( std::pair<vitamin_id, int> vit );
+        bool absorb_vitamin( const std::pair<vitamin_id, int> &vit );
         // absorbs multiple vitamins
         // does not add it to player vitamins yet
         // returns true if any vitamins are absorbed
-        bool absorb_vitamins( std::map<vitamin_id, int> vitamins );
+        bool absorb_vitamins( const std::map<vitamin_id, int> &vitamins );
 
 };

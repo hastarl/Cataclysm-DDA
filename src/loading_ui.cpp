@@ -1,8 +1,12 @@
 #include "loading_ui.h"
 
+#include <memory>
+
 #include "color.h"
 #include "output.h"
 #include "ui.h"
+#include "cursesdef.h"
+#include "translations.h"
 
 #if defined(TILES)
 #   if defined(_MSC_VER) && defined(USE_VCPKG)
@@ -17,7 +21,7 @@ extern bool test_mode;
 loading_ui::loading_ui( bool display )
 {
     if( display && !test_mode ) {
-        menu.reset( new uilist );
+        menu = std::make_unique<uilist>();
         menu->settext( _( "Loading" ) );
     }
 }

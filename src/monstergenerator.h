@@ -3,40 +3,38 @@
 #define MONSTERGENERATOR_H
 
 #include <map>
-#include <set>
 #include <vector>
+#include <string>
 
 #include "enums.h"
 #include "mattack_common.h"
 #include "mtype.h"
 #include "pimpl.h"
 #include "string_id.h"
+#include "enum_bitset.h"
+#include "generic_factory.h"
+#include "type_id.h"
 
 class JsonObject;
 class Creature;
 class monster;
-class Creature;
-
 struct dealt_projectile_attack;
 
 using mon_action_death  = void ( * )( monster & );
 using mon_action_attack = bool ( * )( monster * );
 using mon_action_defend = void ( * )( monster &, Creature *, dealt_projectile_attack const * );
-using mtype_id = string_id<mtype>;
-struct species_type;
-using species_id = string_id<species_type>;
-
-class mattack_actor;
-template<typename T>
-class generic_factory;
 
 struct species_type {
     species_id id;
     bool was_loaded = false;
+    std::string footsteps;
     enum_bitset<m_flag> flags;
     enum_bitset<mon_trigger> anger;
     enum_bitset<mon_trigger> fear;
     enum_bitset<mon_trigger> placate;
+    std::string get_footsteps() const {
+        return footsteps;
+    }
 
     species_type(): id( species_id::NULL_ID() ) {
 
@@ -83,8 +81,8 @@ class MonsterGenerator
         void init_attack();
         void init_defense();
 
-        void add_hardcoded_attack( const std::string &type, const mon_action_attack f );
-        void add_attack( mattack_actor *ptr );
+        void add_hardcoded_attack( const std::string &type, mon_action_attack f );
+        void add_attack( std::unique_ptr<mattack_actor> );
         void add_attack( const mtype_special_attack &wrapper );
 
         /** Gets an actor object without saving it anywhere */

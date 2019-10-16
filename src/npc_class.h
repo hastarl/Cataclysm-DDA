@@ -5,33 +5,25 @@
 #include <functional>
 #include <map>
 #include <vector>
+#include <string>
 
 #include "string_id.h"
+#include "translations.h"
+#include "type_id.h"
 
 class JsonObject;
 
-class npc_class;
-using npc_class_id = string_id<npc_class>;
-
-class Skill;
-using skill_id = string_id<Skill>;
-
-struct mutation_branch;
-using trait_id = string_id<mutation_branch>;
-
-struct bionic_data;
-using bionic_id = string_id<bionic_data>;
-
-typedef std::string Group_tag;
-typedef std::string Mutation_category_tag;
+using Group_tag = std::string;
+using Mutation_category_tag = std::string;
 
 class Trait_group;
+
 namespace trait_group
 {
 
-typedef string_id<Trait_group> Trait_group_tag;
+using Trait_group_tag = string_id<Trait_group>;
 
-}
+} // namespace trait_group
 
 // TODO: Move to better suited file (rng.h/.cpp?)
 class distribution
@@ -59,8 +51,8 @@ class distribution
 class npc_class
 {
     private:
-        std::string name;
-        std::string job_description;
+        translation name;
+        translation job_description;
 
         bool common = true;
 
@@ -88,8 +80,8 @@ class npc_class
         std::map<bionic_id, int> bionic_list;
         npc_class();
 
-        const std::string &get_name() const;
-        const std::string &get_job_description() const;
+        std::string get_name() const;
+        std::string get_job_description() const;
 
         int roll_strength() const;
         int roll_dexterity() const;
@@ -136,5 +128,6 @@ extern npc_class_id NC_HUNTER;
 extern npc_class_id NC_SOLDIER;
 extern npc_class_id NC_BARTENDER;
 extern npc_class_id NC_JUNK_SHOPKEEP;
+extern npc_class_id NC_HALLU;
 
 #endif

@@ -2,13 +2,17 @@
 #ifndef BODYPART_H
 #define BODYPART_H
 
+#include <cstddef>
 #include <array>
 #include <bitset>
+#include <initializer_list>
+#include <string>
 
 #include "int_id.h"
 #include "string_id.h"
 
 class JsonObject;
+template <typename E> struct enum_traits;
 
 // The order is important ; pldata.h has to be in the same order
 enum body_part : int {
@@ -27,10 +31,21 @@ enum body_part : int {
     num_bp
 };
 
+template<>
+struct enum_traits<body_part> {
+    static constexpr auto last = body_part::num_bp;
+};
+
 enum class side : int {
     BOTH,
     LEFT,
-    RIGHT
+    RIGHT,
+    num_sides
+};
+
+template<>
+struct enum_traits<side> {
+    static constexpr auto last = side::num_sides;
 };
 
 /**
@@ -45,6 +60,7 @@ constexpr std::array<body_part, 12> all_body_parts = {{
 };
 
 struct body_part_struct;
+
 using bodypart_ids = string_id<body_part_struct>;
 using bodypart_id = int_id<body_part_struct>;
 
